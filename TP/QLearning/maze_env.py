@@ -1,89 +1,72 @@
-"""
-Reinforcement learning maze example
-Red rectangle:      explorer
-Black rectangles:   walls       [reward = -10]
-Yellow circle:      treasures   [reward = -30]
-Green rect:         target      [reward = +50]
-Other states:       ground      [reward = -1]
-"""
-
 import numpy as np
 import time
 import sys
-import tkinter as tk
 
-UNIT = 40  # pixels
-MAZE_H = 10  # grid height
-MAZE_W = 10  # grid width
+# 窗口界面库
+if sys.version_info.major == 2:
+    import Tkinter as tk
+else:
+    import tkinter as tk
+
+UNIT = 40  # 像素
+MAZE_H = 4  # 网格高度
+MAZE_W = 4  # 网格宽度
 
 
-class Maze(tk.Tk, object):
+class Maze(tk.Tk, object):  # 新类继承父类tk.Tk
     def __init__(self):
-        super(Maze, self).__init__()
-        self.action_space = ['u', 'd', 'l', 'f']
+        super(Maze, self).__init__()  # super类继承方法,初始化
+        self.action_space = ['u', 'd', 'l', 'r']
         self.n_actions = len(self.action_space)
-        self.title = "Maze"
-        self.geometry('{0}x{1}'.format(MAZE_W * UNIT, MAZE_H * UNIT))
+        self.title('maze')
+        self.geometry('{0}x{1}'.format(MAZE_H * UNIT, MAZE_H * UNIT))  # format格式化函数 geometry分辨率函数
         self._build_maze()
 
-    def create_barrier(self, origin, abscissa, ordinate):
-        barrier_center = origin + np.array([UNIT * abscissa, UNIT * ordinate])
-        self.barrier = self.canvas.create_rectangle(
-            barrier_center[0] - 15, barrier_center[1] - 15,
-            barrier_center[0] + 15, barrier_center[1] + 15,
-            fill='black')
-        return self.barrier
-
+    # 迷宫布景
     def _build_maze(self):
-        self.canvas = tk.Canvas(self, bg='white',
+        self.canvas = tk.Canvas(self, bg='white',  # tk画图组件
                                 height=MAZE_H * UNIT,
                                 width=MAZE_W * UNIT)
-        # create grids
-        for c in range(0, MAZE_W * UNIT, UNIT):
+        for c in range(0, MAZE_W * UNIT, UNIT):  # 网格
             x0, y0, x1, y1 = c, 0, c, MAZE_H * UNIT
             self.canvas.create_line(x0, y0, x1, y1)
         for r in range(0, MAZE_H * UNIT, UNIT):
             x0, y0, x1, y1 = 0, r, MAZE_W * UNIT, r
             self.canvas.create_line(x0, y0, x1, y1)
 
-        # create origin
+        # 原点
         origin = np.array([20, 20])
 
-        # barrier: manual set
-        self.barrier1 = self.create_barrier(origin, 4, 0)
-        self.barrier2 = self.create_barrier(origin, 1, 1)
-        self.barrier3 = self.create_barrier(origin, 3, 5)
-        self.barrier4 = self.create_barrier(origin, 6, 3)
-        self.barrier5 = self.create_barrier(origin, 0, 6)
-        self.barrier7 = self.create_barrier(origin, 8, 4)
-        self.barrier8 = self.create_barrier(origin, 7, 6)
-        self.barrier9 = self.create_barrier(origin, 5, 7)
-        self.barrier10 = self.create_barrier(origin, 2, 4)
+        # hell 地狱
+        hell1_center = origin + np.array([UNIT * 2, UNIT])
+        self.hell1 = self.canvas.create_rectangle(
+            hell1_center[0] - 15, hell1_center[1] - 15,  # [5, 5]
+            hell1_center[0] + 15, hell1_center[1] + 15,  # [35, 35]
+            fill='black')
 
-        # create oval
-        oval_center = origin + np.array([UNIT * 1, UNIT * 4])
+        hell2_center = origin + np.array([UNIT, UNIT * 2])
+        self.hell2 = self.canvas.create_rectangle(
+            hell2_center[0] - 15, hell2_center[1] - 15,
+            hell2_center[0] + 15, hell2_center[1] + 15,
+            fill='black')
+
+        # oval 宝藏
+        oval_center = origin + UNIT * 2
         self.oval = self.canvas.create_oval(
             oval_center[0] - 15, oval_center[1] - 15,
             oval_center[0] + 15, oval_center[1] + 15,
             fill='yellow')
 
-        # create red rectangle
+        # rect agent
         self.rect = self.canvas.create_rectangle(
             origin[0] - 15, origin[1] - 15,
             origin[0] + 15, origin[1] + 15,
-            fill='red'
-        )
+            fill='red')
 
-        # create green terminus
-        terminus = origin + np.array([UNIT * 9, UNIT * 9])
-        self.terminus = self.canvas.create_rectangle(
-            terminus[0] - 15, terminus[1] - 15,
-            terminus[0] + 15, terminus[1] + 15,
-            fill='green')
+        self.canvas.pack()  # 打包
+        # return(self.canvas)
 
-        # pack all
-        self.canvas.pack()
-
+    # agent复位
     def reset(self):
         self.update()
         time.sleep(0.5)
@@ -92,53 +75,42 @@ class Maze(tk.Tk, object):
         self.rect = self.canvas.create_rectangle(
             origin[0] - 15, origin[1] - 15,
             origin[0] + 15, origin[1] + 15,
-            fill='red')
-        # return observation
+            fill='red'
+        )
         return self.canvas.coords(self.rect)
 
+    # 生成下一状态和奖惩机制策略
     def step(self, action):
         s = self.canvas.coords(self.rect)
         base_action = np.array([0, 0])
-        if action == 0:   # up
+        if action == 0:  # up
             if s[1] > UNIT:
                 base_action[1] -= UNIT
-        elif action == 1:   # down
+        elif action == 1:  # down
             if s[1] < (MAZE_H - 1) * UNIT:
                 base_action[1] += UNIT
-        elif action == 2:   # right
+        elif action == 2:  # right
             if s[0] < (MAZE_W - 1) * UNIT:
                 base_action[0] += UNIT
-        elif action == 3:   # left
+        elif action == 3:  # left
             if s[0] > UNIT:
                 base_action[0] -= UNIT
 
-        self.canvas.move(self.rect, base_action[0], base_action[1])  # move agent
+        self.canvas.move(self.rect, base_action[0], base_action[1])
 
-        s_ = self.canvas.coords(self.rect)  # next state
+        s_ = self.canvas.coords(self.rect)
 
-        # reward function
+        # 奖惩判断
         if s_ == self.canvas.coords(self.oval):
-            reward = -30
+            reward = 1
             done = True
             s_ = 'terminal'
-
-        elif s_ in [self.canvas.coords(self.barrier1),
-                    self.canvas.coords(self.barrier2),
-                    self.canvas.coords(self.barrier3),
-                    self.canvas.coords(self.barrier4),
-                    self.canvas.coords(self.barrier5),
-                    self.canvas.coords(self.barrier6)]:
-            reward = -10
-            done = True
-            s_ = 'terminal'
-
-        elif s_ == self.canvas.coords(self.terminus):
-            reward = 50
-            done = True
-            s_ = 'terminal'
-
-        else:
+        elif s_ in [self.canvas.coords(self.hell1), self.canvas.coords(self.hell2)]:
             reward = -1
+            done = True
+            s_ = 'terminal'
+        else:
+            reward = 0
             done = False
 
         return s_, reward, done
@@ -147,3 +119,13 @@ class Maze(tk.Tk, object):
         time.sleep(0.1)
         self.update()
 
+
+# --------------------------------------------------------
+# 主函数：程序入口
+"""
+if __name__ == "__main__":
+    env = Maze()
+    env.after(100, update)
+    env.mainloop()
+
+"""
