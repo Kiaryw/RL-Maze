@@ -49,12 +49,12 @@ class Maze(tk.Tk, object):
         origin = np.array([20, 20])
 
         # barrier: manual set
-        self.barrier1 = self.creat_barrier(origin, 4, 0)
-        self.barrier2 = self.creat_barrier(origin, 1, 1)
-        self.barrier3 = self.creat_barrier(origin, 2, 2)
-        self.barrier4 = self.creat_barrier(origin, 4, 2)
-        self.barrier5 = self.creat_barrier(origin, 0, 4)
-        self.barrier6 = self.creat_barrier(origin, 3, 4)
+        self.barrier1 = self.create_barrier(origin, 4, 0)
+        self.barrier2 = self.create_barrier(origin, 1, 1)
+        self.barrier3 = self.create_barrier(origin, 2, 2)
+        self.barrier4 = self.create_barrier(origin, 4, 2)
+        self.barrier5 = self.create_barrier(origin, 0, 4)
+        self.barrier6 = self.create_barrier(origin, 3, 4)
 
         # create oval
         oval_center = origin + np.array([UNIT * 1, UNIT * 4])
