@@ -3,7 +3,7 @@ import time
 
 import numpy as np
 
-from TP.QLearning.maze.MazeAction import LEFT, RIGHT, UP, DOWN
+from MazeAction import LEFT, RIGHT, UP, DOWN
 
 
 class MazeEnv:
