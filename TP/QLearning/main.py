@@ -12,8 +12,10 @@ def update():
         print(episode)
         # initial observation
         observation = env.reset()
-
+        # print (str(observation))
+        step_counter = 0
         while True:
+            step_counter += 1
             # fresh env
             env.render()
 
@@ -32,7 +34,7 @@ def update():
             # break while loop when end of this episode
             if done:
                 break
-
+        print('Episode %s: total_steps = %s' % (episode, step_counter))
     # end of game
     print('game over')
     env.destroy()
