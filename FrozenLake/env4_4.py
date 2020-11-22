@@ -27,7 +27,7 @@ class Environment(tk.Tk, object):
         super(Environment, self).__init__()
         self.action_space = ['up', 'down', 'left', 'right']
         self.n_actions = 4
-        self.title('RL Q-learning. SK')
+        self.title('RL Maze')
         self.build_environment()
 
         # Dictionaries to draw the final route
