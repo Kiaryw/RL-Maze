@@ -1,9 +1,10 @@
 """
 Reinforcement learning maze example
 Red rectangle:      explorer
-Black rectangles:   walls       [reward = -1]
-Yellow circle:      treasures   [reward = 1]
-Other states:       ground      [reward = 0]
+Black rectangles:   walls       [reward = -10]
+Yellow circle:      treasures   [reward = -30]
+Green rect:         target      [reward = +50]
+Other states:       ground      [reward = -1]
 """
 
 import numpy as np
@@ -12,8 +13,8 @@ import sys
 import tkinter as tk
 
 UNIT = 40  # pixels
-MAZE_H = 5  # grid height
-MAZE_W = 5  # grid width
+MAZE_H = 10  # grid height
+MAZE_W = 10  # grid width
 
 
 class Maze(tk.Tk, object):
@@ -51,10 +52,13 @@ class Maze(tk.Tk, object):
         # barrier: manual set
         self.barrier1 = self.create_barrier(origin, 4, 0)
         self.barrier2 = self.create_barrier(origin, 1, 1)
-        self.barrier3 = self.create_barrier(origin, 2, 2)
-        self.barrier4 = self.create_barrier(origin, 4, 2)
-        self.barrier5 = self.create_barrier(origin, 0, 4)
-        self.barrier6 = self.create_barrier(origin, 3, 4)
+        self.barrier3 = self.create_barrier(origin, 3, 5)
+        self.barrier4 = self.create_barrier(origin, 6, 3)
+        self.barrier5 = self.create_barrier(origin, 0, 6)
+        self.barrier7 = self.create_barrier(origin, 8, 4)
+        self.barrier8 = self.create_barrier(origin, 7, 6)
+        self.barrier9 = self.create_barrier(origin, 5, 7)
+        self.barrier10 = self.create_barrier(origin, 2, 4)
 
         # create oval
         oval_center = origin + np.array([UNIT * 1, UNIT * 4])
@@ -71,7 +75,7 @@ class Maze(tk.Tk, object):
         )
 
         # create green terminus
-        terminus = origin + np.array([UNIT * 4, UNIT * 4])
+        terminus = origin + np.array([UNIT * 9, UNIT * 9])
         self.terminus = self.canvas.create_rectangle(
             terminus[0] - 15, terminus[1] - 15,
             terminus[0] + 15, terminus[1] + 15,
